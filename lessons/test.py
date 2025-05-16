@@ -1,36 +1,60 @@
-import copy
+from enum import Enum
 
-class SimpleObject:
-    def __init__(self, greeting: str):
-        self.greeting = greeting
 
-class ComplexObject:
-    def __init__(self, value: int, nested_obj: SimpleObject):
-        self.value = value
-        self.nested_obj = nested_obj
+class SideType(Enum):
+    TYPE_WIDTH = 'width'
+    TYPE_HEIGHT = 'height'
 
-    def __copy__(self):
-        print("Викликано __copy__ для ComplexObject")
-        # Поверхневе копіювання не копіює вкладені об'єкти глибоко
-        return ComplexObject(self.value, self.nested_obj)
 
-    def __deepcopy__(self, memo=None):
-        print("Викликано __deepcopy__ для ComplexObject")
-        # Глибоке копіювання копіює вкладені об'єкти
-        return ComplexObject(
-            copy.deepcopy(self.value, memo), copy.deepcopy(self.nested_obj, memo)
-        )
+class Shape:
+    def set_side(self, size, side):
+        pass
 
-nested_obj = SimpleObject("Привіт")
-complex_obj = ComplexObject(5, nested_obj)
+    def area_of(self):
+        pass
 
-# Створюємо копію та глибоку копію
-complex_obj_copy = copy.copy(complex_obj)
-complex_obj_deepcopy = copy.deepcopy(complex_obj)
 
-# Змінюємо значення вкладеного об'єкту nested_obj
-nested_obj.greeting = "Hello"
+class Rect(Shape):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
 
-# Дивимось зміни у об'єктах
-print(f"Copy object: {complex_obj_copy.nested_obj.greeting}")
-print(f"Deepcopy object: {complex_obj_deepcopy.nested_obj.greeting}")
+    def set_side(self, size, side):
+        if SideType.TYPE_WIDTH == side:
+            self.width = size
+        if SideType.TYPE_HEIGHT == side:
+            self.height = size
+
+    def set_width(self, width):
+        self.set_side(width, SideType.TYPE_WIDTH)
+
+    def set_height(self, height):
+        self.set_side(height, SideType.TYPE_HEIGHT)
+
+    def area_of(self):
+        return self.width * self.height
+
+
+class Square(Shape):
+    def __init__(self, size):
+        self.edge = size
+
+    def set_side(self, size, side=None):
+        self.edge = size
+
+    def set_width(self, width):
+        self.set_side(width)
+
+    def area_of(self):
+        return self.edge ** 2
+
+
+def get_area_of_shape(figure: Shape):
+    return figure.area_of()
+
+    
+if __name__ == '__main__':
+    square = Square(10)
+    rect = Rect(5, 10)
+    print('Square area: ', get_area_of_shape(square))
+    print('Rect area: ', get_area_of_shape(rect))
